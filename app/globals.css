@@ -123,3 +123,20 @@
     @apply bg-background text-foreground;
   }
 }
+
+@layer components {
+  [data-slot='input']:placeholder-shown,
+  [data-slot='textarea']:placeholder-shown {
+    color: color-mix(in oklab, var(--muted-foreground) 60%, white 40%);
+    font-style: italic;
+    background-color: var(--secondary);
+    border-color: var(--border);
+  }
+
+  [data-slot='input']:not(:placeholder-shown),
+  [data-slot='textarea']:not(:placeholder-shown) {
+    color: var(--foreground);
+    background-color: var(--card);
+    border-color: var(--input);
+  }
+}
