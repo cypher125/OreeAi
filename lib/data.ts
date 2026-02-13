@@ -11,6 +11,7 @@ export interface Lead {
   emailsSent: number
   lastEmail: string
   responseRate: number
+  jobTitle?: string
   source?: string
   metadata?: unknown
   nextAction?: string
@@ -171,6 +172,22 @@ function mapLead(raw: any): Lead {
     ? new Date(raw.last_email_sent_at).toLocaleString()
     : raw.lastEmail || '—'
   const status = (raw.status || raw.sequence_status || '').toString().toLowerCase() || 'unknown'
+  const metadata = parseJsonValue(raw.metadata)
+  const metadataRecord =
+    metadata && typeof metadata === 'object' ? (metadata as Record<string, unknown>) : {}
+  const apolloRaw = metadataRecord.apollo_raw as Record<string, unknown> | undefined
+  const jobTitle =
+    raw.job_title ||
+    raw.jobTitle ||
+    raw.title ||
+    raw.position ||
+    raw.role ||
+    metadataRecord.job_title ||
+    metadataRecord.jobTitle ||
+    metadataRecord.title ||
+    metadataRecord.position ||
+    metadataRecord.role ||
+    apolloRaw?.title
   return {
     id: String(raw.id),
     email: raw.email || '',
@@ -180,8 +197,9 @@ function mapLead(raw: any): Lead {
     emailsSent,
     lastEmail,
     responseRate,
+    jobTitle: jobTitle ? String(jobTitle) : undefined,
     source: raw.source || raw.external_id || '',
-    metadata: parseJsonValue(raw.metadata),
+    metadata,
     nextAction: raw.next_action || raw.nextAction,
     notes: raw.notes
   }

@@ -96,6 +96,27 @@ export default function LeadDetailPage() {
   }
 
   const metadata = lead.metadata
+  const jobTitle = (() => {
+    if (!metadata || typeof metadata !== 'object') return null
+    const record = metadata as Record<string, unknown>
+    const direct =
+      record.job_title ??
+      record.jobTitle ??
+      record.title ??
+      record.position ??
+      record.role
+    if (direct !== undefined && direct !== null && direct !== '') {
+      return String(direct)
+    }
+    const apollo = record.apollo_raw as Record<string, unknown> | undefined
+    const apolloTitle = apollo?.title
+    if (apolloTitle !== undefined && apolloTitle !== null && apolloTitle !== '') {
+      return String(apolloTitle)
+    }
+    const apolloPerson = apollo?.person as Record<string, unknown> | undefined
+    const apolloPersonTitle = apolloPerson?.title
+    return apolloPersonTitle ? String(apolloPersonTitle) : null
+  })()
   const parseSectionValue = (value: unknown) => {
     if (value === null || value === undefined || value === '') return null
     if (typeof value === 'string') {
@@ -390,6 +411,10 @@ export default function LeadDetailPage() {
                   <p className="text-sm text-muted-foreground mb-2">Company</p>
                   <p className="text-foreground font-medium">{lead.company}</p>
                 </div>
+              <div>
+                <p className="text-sm text-muted-foreground mb-2">Job Title</p>
+                <p className="text-foreground font-medium">{jobTitle || '—'}</p>
+              </div>
                 <div>
                   <p className="text-sm text-muted-foreground mb-2">Status</p>
                   <div className={`inline-flex items-center gap-2 px-2 py-1 rounded text-sm font-medium ${getStatusColor(lead.status)}`}>

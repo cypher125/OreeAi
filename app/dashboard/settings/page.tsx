@@ -112,6 +112,17 @@ export default function SettingsPage() {
       .map((item) => item.trim())
       .filter(Boolean)
 
+  const parseEmployeeRanges = (value: string) => {
+    const matches = value.match(/\d+\s*,\s*\d+/g)
+    if (matches && matches.length) {
+      return matches.map((item) => item.replace(/\s+/g, ''))
+    }
+    return parseList(value)
+  }
+
+  const formatEmployeeRanges = (value?: string[]) =>
+    value && value.length ? value.join(' | ') : ''
+
   const listToText = (value?: string[]) => (value && value.length ? value.join(', ') : '')
 
   useEffect(() => {
@@ -132,7 +143,7 @@ export default function SettingsPage() {
             organizationDomains: listToText(data.q_organization_domains_list),
             contactEmailStatus: listToText(data.contact_email_status),
             organizationIds: listToText(data.organization_ids),
-            organizationEmployeeRanges: listToText(data.organization_num_employees_ranges),
+            organizationEmployeeRanges: formatEmployeeRanges(data.organization_num_employees_ranges),
             organizationKeywordTags: listToText(data.q_organization_keyword_tags),
             revenueMin: data.revenue_range_min?.toString() ?? '',
             revenueMax: data.revenue_range_max?.toString() ?? '',
@@ -173,7 +184,7 @@ export default function SettingsPage() {
       q_organization_domains_list: parseList(icpForm.organizationDomains),
       contact_email_status: parseList(icpForm.contactEmailStatus),
       organization_ids: parseList(icpForm.organizationIds),
-      organization_num_employees_ranges: parseList(icpForm.organizationEmployeeRanges),
+      organization_num_employees_ranges: parseEmployeeRanges(icpForm.organizationEmployeeRanges),
       q_organization_keyword_tags: parseList(icpForm.organizationKeywordTags),
       revenue_range_min: icpForm.revenueMin ? Number(icpForm.revenueMin) : undefined,
       revenue_range_max: icpForm.revenueMax ? Number(icpForm.revenueMax) : undefined,
@@ -556,7 +567,7 @@ export default function SettingsPage() {
                   <Textarea
                     value={icpForm.organizationEmployeeRanges}
                     onChange={(e) => setIcpForm(prev => ({ ...prev, organizationEmployeeRanges: e.target.value }))}
-                    placeholder="10,50, 51,200, 201,500"
+                      placeholder="10,50 | 51,200 | 201,500"
                     className="bg-secondary text-foreground border-border"
                   />
                 </div>
